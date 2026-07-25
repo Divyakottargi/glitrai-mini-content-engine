@@ -2,6 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import "./App.css";
 
+const API = import.meta.env.VITE_API_URL;
+
 function App() {
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
@@ -19,7 +21,6 @@ function App() {
     }
 
     const formData = new FormData();
-
     formData.append("product_name", productName);
     formData.append("description", description);
     formData.append("productImage", image);
@@ -28,19 +29,20 @@ function App() {
       setLoading(true);
 
       const response = await axios.post(
-        "http://localhost:5000/generate",
+        `${API}/generate`,
         formData
       );
 
       const id = response.data.jobId;
 
       const jobResponse = await axios.get(
-        `http://localhost:5000/jobs/${id}`
+        `${API}/jobs/${id}`
       );
 
       setJob(jobResponse.data);
+
     } catch (err) {
-      console.log(err);
+      console.error(err);
       alert("Something went wrong");
     } finally {
       setLoading(false);
@@ -92,18 +94,20 @@ function App() {
 
           <p>{job.description}</p>
 
-          <p>Status : {job.status} </p>
+          <p><b>Status:</b> {job.status}</p>
 
           <h3>AI Generated Prompt</h3>
 
-<p style={{ marginBottom: "15px" }}>
-  {job.prompt}
-</p>
+          <p style={{ marginBottom: "15px" }}>
+            {job.prompt}
+          </p>
 
-          <img
-            src={`http://localhost:5000${job.image_url}`}
-            alt="Generated"
-          />
+          {job.image_url && (
+            <img
+              src={`${API}${job.image_url}`}
+              alt="Generated"
+            />
+          )}
 
         </div>
 
